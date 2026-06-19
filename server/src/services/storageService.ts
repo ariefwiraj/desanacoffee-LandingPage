@@ -6,11 +6,6 @@ import fs from 'fs';
 const BUCKET_NAME = 'desana-images';
 const UPLOADS_DIR = path.join(__dirname, '../../uploads');
 
-// Ensure uploads directory exists if using local storage
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
 export const storageService = {
   async uploadFile(file: Express.Multer.File): Promise<string> {
     const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
@@ -19,6 +14,9 @@ export const storageService = {
 
     // Use local storage if configured
     if (process.env.STORAGE_PROVIDER === 'local') {
+      if (!fs.existsSync(UPLOADS_DIR)) {
+        try { fs.mkdirSync(UPLOADS_DIR, { recursive: true }); } catch (e) {}
+      }
       const filePath = path.join(UPLOADS_DIR, filename);
       await fs.promises.writeFile(filePath, file.buffer);
       return `/uploads/${filename}`;
