@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { scrollToTarget } from './Navbar';
 
 interface MobileDrawerProps {
@@ -9,7 +9,7 @@ interface MobileDrawerProps {
   navLinks: { label: string; target: string }[];
 }
 
-const drawerVariants = {
+const drawerVariants: Variants = {
   hidden: { opacity: 0, scale: 0.96, y: -8 },
   visible: { 
     opacity: 1, 
@@ -21,14 +21,6 @@ const drawerVariants = {
 };
 
 export function MobileDrawer({ isOpen, onClose, activeId, navLinks }: MobileDrawerProps) {
-  // 1. Cari tahu index menu yang sedang aktif saat ini
-  const activeIndex = navLinks.findIndex(
-    (link) => activeId === link.target || (!activeId && link.target === 'home')
-  );
-
-  // 2. Tinggi tiap baris menu (pading + tinggi text kira-kira 48px)
-  // Kita gunakan tinggi konstan agar kalkulasi transform Y sangat ringan
-  const ITEM_HEIGHT = 48; 
 
   return (
     <AnimatePresence>

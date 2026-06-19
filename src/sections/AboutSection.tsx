@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-// import { Coffee, Users, Clock } from 'lucide-react';
-import { Users, Wifi, Wind, Coffee, Camera } from 'lucide-react';
+import { Wifi, Wind, Coffee, Camera } from 'lucide-react';
 
 export function AboutSection() {
   return (
