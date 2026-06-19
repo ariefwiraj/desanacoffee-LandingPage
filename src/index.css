@@ -51,6 +51,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
   body {
     background-color: var(--background);

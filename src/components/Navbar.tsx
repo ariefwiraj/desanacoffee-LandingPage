@@ -13,6 +13,36 @@ const navLinks = [
   { label: 'Location', target: 'location' },
 ];
 
+export const scrollToTarget = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+  e.preventDefault();
+  const element = document.getElementById(target);
+  if (!element) return;
+
+  const targetPosition = element.getBoundingClientRect().top + window.scrollY - 80;
+  const startPosition = window.scrollY;
+  const distance = targetPosition - startPosition;
+  const duration = 800; // 800ms duration
+  let start: number | null = null;
+
+  const easeInOutCubic = (t: number) => {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  };
+
+  const animation = (currentTime: number) => {
+    if (start === null) start = currentTime;
+    const timeElapsed = currentTime - start;
+    const progress = Math.min(timeElapsed / duration, 1);
+    
+    window.scrollTo(0, startPosition + distance * easeInOutCubic(progress));
+    
+    if (timeElapsed < duration) {
+      requestAnimationFrame(animation);
+    }
+  };
+
+  requestAnimationFrame(animation);
+};
+
 export function Navbar() {
   const scrollY = useScrollPosition();
   const activeId = useScrollspy(navLinks.map(l => l.target), 100);
@@ -31,7 +61,11 @@ export function Navbar() {
         <div className="w-full pl-6 md:pl-12 lg:pl-40 pr-6 md:pr-12 flex items-center justify-between relative">
           {/* LOGO AREA */}
           <div className="flex-shrink-0 z-10">
-            <a href="#hero" className="block focus:outline-none">
+            <a 
+              href="#hero" 
+              onClick={(e) => scrollToTarget(e, 'hero')}
+              className="block focus:outline-none"
+            >
               <img 
                 src="/images/logo_desana.jpg" 
                 alt="Desana Logo" 
@@ -49,6 +83,7 @@ export function Navbar() {
                 <a
                   key={link.target}
                   href={`#${link.target}`}
+                  onClick={(e) => scrollToTarget(e, link.target)}
                   className={cn(
                     // Base classes & Hover effect
                     "text-sm font-medium transition-colors relative py-2 block flex flex-col items-center",

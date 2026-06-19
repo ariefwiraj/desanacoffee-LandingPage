@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
-import { Coffee, Users, Clock } from 'lucide-react';
+// import { Coffee, Users, Clock } from 'lucide-react';
+import { Users, Wifi, Wind, Coffee, Camera } from 'lucide-react';
 
 export function AboutSection() {
   return (
@@ -28,7 +29,7 @@ export function AboutSection() {
             <div className="absolute -top-8 -left-8 w-32 h-32 bg-accent rounded-full -z-10 opacity-20 blur-xl" />
             
             {/* Experience Badge */}
-            <div className="absolute bottom-8 -right-4 md:-right-8 bg-white p-6 rounded-xl shadow-xl max-w-[200px]">
+            {/* <div className="absolute bottom-8 -right-4 md:-right-8 bg-white p-6 rounded-xl shadow-xl max-w-[200px]">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-accent/20 rounded-full flex items-center justify-center text-accent">
                   <Coffee className="w-6 h-6" />
@@ -38,7 +39,7 @@ export function AboutSection() {
                   <div className="text-sm text-foreground/70 font-medium">Years of Brewing</div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </motion.div>
 
           {/* Text Column */}
@@ -66,22 +67,46 @@ export function AboutSection() {
               </p>
             </div>
 
-            <div className="mt-12 grid grid-cols-2 gap-8">
-              <div>
-                <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
-                  <Users className="w-5 h-5 text-accent" />
-                  Community
-                </div>
-                <p className="text-foreground/70">Ruang nyaman untuk bertemu dan berkolaborasi.</p>
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
-                  <Clock className="w-5 h-5 text-accent" />
-                  Quality Time
-                </div>
-                <p className="text-foreground/70">Ciptakan momen berharga bersama yang terkasih.</p>
-              </div>
-            </div>
+<div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6">
+  
+  {/* Kotak 1: High-Speed WiFi */}
+  <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
+      <Wifi className="w-5 h-5 text-accent" />
+      Fast WiFi
+    </div>
+    <p className="text-foreground/70">Koneksi internet cepat untuk tugas atau WFH tanpa hambatan.</p>
+  </div>
+
+  {/* Kotak 2: Full AC */}
+  <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
+      <Wind className="w-5 h-5 text-accent" />
+      Full AC
+    </div>
+    <p className="text-foreground/70">Suasana sejuk dan segar, bikin betah berlama-lama di sini.</p>
+  </div>
+
+  {/* Kotak 3: Tempat Nyaman */}
+  <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
+      <Coffee className="w-5 h-5 text-accent" />
+      Cozy Space
+    </div>
+    <p className="text-foreground/70">Sudut santai yang tenang, pas untuk kerja maupun ngobrol hangat.</p>
+  </div>
+  
+  {/* Kotak 4: Aesthetic */}
+  <div className="bg-white/40 backdrop-blur-md p-6 rounded-2xl border border-white/40 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+    <div className="flex items-center gap-3 mb-2 text-primary font-serif text-xl font-semibold">
+      <Camera className="w-5 h-5 text-accent" />
+      Aesthetic Spot
+    </div>
+    <p className="text-foreground/70">Setiap sudut didesain cantik dan sangat pas untuk foto media sosialmu.</p>
+  </div>
+
+</div>
+            
           </motion.div>
 
         </div>

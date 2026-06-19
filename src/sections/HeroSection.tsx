@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin } from 'lucide-react';
+import { scrollToTarget } from '@/components/Navbar';
 
 export function HeroSection() {
   return (
@@ -41,6 +42,7 @@ export function HeroSection() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <a 
               href="#menu"
+              onClick={(e) => scrollToTarget(e, 'menu')}
               className="w-full sm:w-auto px-8 py-4 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-primary/90 transition-all hover:gap-3"
             >
               <span>Explore Menu</span>
@@ -48,6 +50,7 @@ export function HeroSection() {
             </a>
             <a 
               href="#location"
+              onClick={(e) => scrollToTarget(e, 'location')}
               className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-white/20 transition-colors border border-white/20"
             >
               <MapPin className="w-5 h-5" />
