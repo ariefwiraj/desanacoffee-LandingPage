@@ -20,15 +20,13 @@ export function useScrollspy(ids: string[], offset: number = 0) {
         }
       }
       
-      if (currentId !== activeId) {
-        setActiveId(currentId);
-      }
+      setActiveId((prev) => (currentId !== prev ? currentId : prev));
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [ids, offset, activeId]);
+  }, [ids, offset]);
 
   return activeId;
 }

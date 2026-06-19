@@ -15,10 +15,15 @@ const navLinks = [
   { label: 'Location', target: 'location' },
 ];
 
+const navLinkIds = navLinks.map(l => l.target);
+
 export const scrollToTarget = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
   e.preventDefault();
   const element = document.getElementById(target);
   if (!element) return;
+
+  // Update the URL hash without triggering a sudden jump
+  history.pushState(null, '', `#${target}`);
 
   const targetPosition = element.getBoundingClientRect().top + window.scrollY - 80;
   const startPosition = window.scrollY;
@@ -47,7 +52,7 @@ export const scrollToTarget = (e: React.MouseEvent<HTMLAnchorElement>, target: s
 
 export function Navbar() {
   const scrollY = useScrollPosition();
-  const activeId = useScrollspy(navLinks.map(l => l.target), 100);
+  const activeId = useScrollspy(navLinkIds, 100);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
