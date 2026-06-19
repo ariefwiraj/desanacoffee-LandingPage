@@ -64,6 +64,11 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
+// Root route so browser doesn't show "Cannot GET /"
+app.get('/', (_req, res) => {
+  res.send('<h1>Desana Coffee API Server</h1><p>The backend is running successfully!</p>');
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menus', menuRoutes);
