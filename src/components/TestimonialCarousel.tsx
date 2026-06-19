@@ -12,9 +12,11 @@ interface Testimonial {
 
 interface CarouselProps {
   items: Testimonial[];
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function TestimonialCarousel({ items }: CarouselProps) {
+export function TestimonialCarousel({ items, onEdit, onDelete }: CarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -43,12 +45,11 @@ export function TestimonialCarousel({ items }: CarouselProps) {
       <div className="w-full overflow-hidden style={{ backfaceVisibility: 'hidden' }}">
         <motion.div
           className="flex"
-          // Menggunakan kombinasi tween dan durasi tetap yang konstan agar kalkulasi frame di HP lebih ringan dibanding spring physics
           animate={{ x: `-${activeIndex * 100}%` }}
           transition={{ type: "tween", ease: "easeInOut", duration: 0.5 }}
           style={{ 
             willChange: 'transform',
-            transform: 'translateZ(0)', // Memaksa hardware acceleration di iOS
+            transform: 'translateZ(0)',
             WebkitTransform: 'translateZ(0)'
           }}
         >
@@ -59,7 +60,11 @@ export function TestimonialCarousel({ items }: CarouselProps) {
               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
               <div className="max-w-2xl mx-auto h-full">
-                <TestimonialCard {...item} />
+                <TestimonialCard
+                  {...item}
+                  onEdit={onEdit ? () => onEdit(item.id) : undefined}
+                  onDelete={onDelete ? () => onDelete(item.id) : undefined}
+                />
               </div>
             </div>
           ))}

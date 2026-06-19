@@ -1,67 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Plus } from 'lucide-react';
 import { MenuCard } from '@/components/MenuCard';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { useMenuOverlayStore } from '@/store/menuOverlayStore';
-
-// Dummy data for initial dev (will be replaced by Supabase)
-const DUMMY_FEATURED = [
-  {
-    id: '1',
-    name: 'Desana Signature',
-    description: 'Kopi susu gula aren khas dengan resep rahasia yang creamy.',
-    price: 25000,
-    category: 'Coffee',
-    imageUrl: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1964&auto=format&fit=crop',
-    featured: true
-  },
-  {
-    id: '2',
-    name: 'Manual Brew V60',
-    description: 'Pilihan beans single origin untuk penggemar kopi hitam.',
-    price: 30000,
-    category: 'Coffee',
-    imageUrl: 'https://images.unsplash.com/photo-1544243614-2d881e18dce8?q=80&w=2070&auto=format&fit=crop',
-    featured: true
-  },
-  {
-    id: '3',
-    name: 'Matcha Latte',
-    description: 'Premium matcha blend dengan susu segar pilihan.',
-    price: 28000,
-    category: 'Non Coffee',
-    imageUrl: 'https://images.unsplash.com/photo-1515823662972-da6a2b4d3002?q=80&w=2070&auto=format&fit=crop',
-    featured: true
-  },
-  {
-    id: '4',
-    name: 'Butter Croissant',
-    description: 'Croissant buttery yang renyah di luar, lembut di dalam.',
-    price: 22000,
-    category: 'Food & Snacks',
-    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f40ce88cb?q=80&w=2003&auto=format&fit=crop',
-    featured: true
-  }
-];
+import { useAuthStore } from '@/store/authStore';
+import { menuService } from '@/services/menuService';
+import { EditMenuModal } from '@/components/owner/EditMenuModal';
+import { getImageUrl } from '@/utils/imageUrl';
+import type { Menu } from '@/types';
 
 export function FeaturedMenuSection() {
-  const [menus, setMenus] = useState<typeof DUMMY_FEATURED>([]);
+  const [menus, setMenus] = useState<Menu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   const openMenuOverlay = useMenuOverlayStore((state) => state.open);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  const fetchMenus = useCallback(async () => {
+    setIsLoading(true);
+    const data = await menuService.getAll(true);
+    setMenus(data);
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
-    // Simulate Supabase fetch
-    const fetchMenus = async () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setMenus(DUMMY_FEATURED);
-        setIsLoading(false);
-      }, 1000);
-    };
-    
     fetchMenus();
-  }, []);
+  }, [fetchMenus]);
+
+  const handleEdit = (menu: Menu) => {
+    setEditingMenu(menu);
+    setIsEditModalOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingMenu(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const success = await menuService.remove(id);
+    if (success) fetchMenus();
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -100,16 +82,31 @@ export function FeaturedMenuSection() {
             </p>
           </motion.div>
 
-          <motion.button
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            onClick={openMenuOverlay}
-            className="hidden md:flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition-all hover:gap-3"
-          >
-            <span>Explore Full Menu</span>
-            <ArrowRight className="w-5 h-5" />
-          </motion.button>
+          <div className="flex items-center gap-3">
+            {isAuthenticated && (
+              <motion.button
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                onClick={handleAddNew}
+                className="hidden md:flex items-center gap-2 px-5 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-all"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Menu</span>
+              </motion.button>
+            )}
+
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              onClick={openMenuOverlay}
+              className="hidden md:flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition-all hover:gap-3"
+            >
+              <span>Explore Full Menu</span>
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -117,6 +114,18 @@ export function FeaturedMenuSection() {
             {[1, 2, 3, 4].map((i) => (
               <SkeletonCard key={i} />
             ))}
+          </div>
+        ) : menus.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-foreground/50 text-lg">No featured menu items yet.</p>
+            {isAuthenticated && (
+              <button
+                onClick={handleAddNew}
+                className="mt-4 px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-all"
+              >
+                Add your first menu item
+              </button>
+            )}
           </div>
         ) : (
           <motion.div 
@@ -128,13 +137,32 @@ export function FeaturedMenuSection() {
           >
             {menus.map((menu) => (
               <motion.div key={menu.id} variants={itemVariants}>
-                <MenuCard {...menu} />
+                <MenuCard
+                  id={menu.id}
+                  name={menu.name}
+                  description={menu.description}
+                  price={menu.price}
+                  category={menu.category}
+                  imageUrl={getImageUrl(menu.image_url)}
+                  featured={menu.featured}
+                  onEdit={isAuthenticated ? () => handleEdit(menu) : undefined}
+                  onDelete={isAuthenticated ? () => handleDelete(menu.id) : undefined}
+                />
               </motion.div>
             ))}
           </motion.div>
         )}
 
-        <div className="mt-10 md:hidden flex justify-center">
+        <div className="mt-10 md:hidden flex flex-col gap-3">
+          {isAuthenticated && (
+            <button
+              onClick={handleAddNew}
+              className="flex items-center justify-center w-full gap-2 px-6 py-4 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Menu</span>
+            </button>
+          )}
           <button
             onClick={openMenuOverlay}
             className="flex items-center justify-center w-full gap-2 px-6 py-4 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition-all"
@@ -144,6 +172,14 @@ export function FeaturedMenuSection() {
           </button>
         </div>
       </div>
+
+      {/* Edit/Create Modal */}
+      <EditMenuModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        menu={editingMenu}
+        onSaved={fetchMenus}
+      />
     </section>
   );
 }

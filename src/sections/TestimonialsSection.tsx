@@ -1,46 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
 import { TestimonialCarousel } from '@/components/TestimonialCarousel';
-
-const DUMMY_TESTIMONIALS = [
-  {
-    id: '1',
-    name: 'Budi Santoso',
-    review: 'Tempatnya cozy banget buat WFC. Kopinya juara, terutama signature lattenya. Pelayanan ramah dan wifi kenceng!',
-    rating: 5,
-    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop'
-  },
-  {
-    id: '2',
-    name: 'Sarah Wijaya',
-    review: 'Selalu jadi pilihan pertama buat meeting santai. Vibe-nya tenang, pastry-nya selalu fresh tiap pagi.',
-    rating: 5,
-    avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop'
-  },
-  {
-    id: '3',
-    name: 'Reza Pahlevi',
-    review: 'Manual brew V60 nya konsisten enak. Baristanya pinter diajak ngobrol soal beans. Recommended buat coffee enthusiast.',
-    rating: 4,
-    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop'
-  },
-  {
-    id: '4',
-    name: 'Dinda Amanda',
-    review: 'Spot foto aesthetic ada dimana-mana. Suka banget sama interior designnya. Kopi dan makanannya juga ga mengecewakan.',
-    rating: 5
-  }
-];
+import { useAuthStore } from '@/store/authStore';
+import { testimonialService } from '@/services/testimonialService';
+import { EditTestimonialModal } from '@/components/owner/EditTestimonialModal';
+import type { Testimonial } from '@/types';
 
 export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState<typeof DUMMY_TESTIMONIALS>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  const fetchTestimonials = useCallback(async () => {
+    const data = await testimonialService.getAll();
+    setTestimonials(data);
+  }, []);
 
   useEffect(() => {
-    // Simulate fetch
-    setTimeout(() => {
-      setTestimonials(DUMMY_TESTIMONIALS);
-    }, 500);
-  }, []);
+    fetchTestimonials();
+  }, [fetchTestimonials]);
+
+  const handleEdit = (id: string) => {
+    const t = testimonials.find((item) => item.id === id);
+    if (t) {
+      setEditingTestimonial(t);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleAddNew = () => {
+    setEditingTestimonial(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const success = await testimonialService.remove(id);
+    if (success) fetchTestimonials();
+  };
+
+  // Map API response to carousel's expected shape
+  const carouselItems = testimonials.map((t) => ({
+    id: t.id,
+    name: t.customer_name,
+    review: t.review,
+    rating: t.rating,
+    avatarUrl: t.avatar_url ?? undefined,
+  }));
 
   return (
     <section id="testimonials" className="py-24 md:py-32 bg-background relative overflow-hidden">
@@ -66,6 +74,16 @@ export function TestimonialsSection() {
           <p className="text-foreground/80 text-lg">
             Cerita pengalaman para pelanggan setia menikmati momen di Desana Coffee.
           </p>
+
+          {isAuthenticated && (
+            <button
+              onClick={handleAddNew}
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Testimonial</span>
+            </button>
+          )}
         </motion.div>
 
         <motion.div
@@ -74,9 +92,27 @@ export function TestimonialsSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <TestimonialCarousel items={testimonials} />
+          {carouselItems.length > 0 ? (
+            <TestimonialCarousel
+              items={carouselItems}
+              onEdit={isAuthenticated ? handleEdit : undefined}
+              onDelete={isAuthenticated ? handleDelete : undefined}
+            />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-foreground/50 text-lg">No testimonials yet.</p>
+            </div>
+          )}
         </motion.div>
       </div>
+
+      {/* Edit/Create Modal */}
+      <EditTestimonialModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        testimonial={editingTestimonial}
+        onSaved={fetchTestimonials}
+      />
     </section>
   );
 }

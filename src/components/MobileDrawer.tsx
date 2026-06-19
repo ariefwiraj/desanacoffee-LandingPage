@@ -23,7 +23,7 @@ const drawerVariants = {
 export function MobileDrawer({ isOpen, onClose, activeId, navLinks }: MobileDrawerProps) {
   // 1. Cari tahu index menu yang sedang aktif saat ini
   const activeIndex = navLinks.findIndex(
-    (link) => activeId === link.target || (!activeId && link.target === 'hero')
+    (link) => activeId === link.target || (!activeId && link.target === 'home')
   );
 
   // 2. Tinggi tiap baris menu (pading + tinggi text kira-kira 48px)
@@ -51,7 +51,7 @@ export function MobileDrawer({ isOpen, onClose, activeId, navLinks }: MobileDraw
           >
             <nav className="flex flex-col gap-1">
               {navLinks.map((link) => {
-                const isActive = activeId === link.target || (!activeId && link.target === 'hero');
+                const isActive = activeId === link.target || (!activeId && link.target === 'home');
                 return (
                   <a
                     key={link.target}

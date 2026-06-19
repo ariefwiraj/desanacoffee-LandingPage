@@ -1,51 +1,46 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useGalleryStore } from '@/store/galleryStore';
-import { Maximize2 } from 'lucide-react';
-
-const DUMMY_GALLERY = [
-  {
-    id: '1',
-    url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2047&auto=format&fit=crop',
-    caption: 'Suasana hangat di pagi hari'
-  },
-  {
-    id: '2',
-    url: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=2070&auto=format&fit=crop',
-    caption: 'Kopi hitam peningkat semangat'
-  },
-  {
-    id: '3',
-    url: 'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=2070&auto=format&fit=crop',
-    caption: 'Sudut favorit para pengunjung'
-  },
-  {
-    id: '4',
-    url: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop',
-    caption: 'Barista in action'
-  },
-  {
-    id: '5',
-    url: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?q=80&w=2070&auto=format&fit=crop',
-    caption: 'Biji kopi pilihan'
-  },
-  {
-    id: '6',
-    url: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1964&auto=format&fit=crop',
-    caption: 'Signature latte art'
-  }
-];
+import { useAuthStore } from '@/store/authStore';
+import { galleryService } from '@/services/galleryService';
+import { AddGalleryModal } from '@/components/owner/AddGalleryModal';
+import { getImageUrl } from '@/utils/imageUrl';
+import { Maximize2, Plus, Trash2 } from 'lucide-react';
+import type { GalleryImage } from '@/types';
 
 export function GallerySection() {
-  const [images, setImages] = useState<typeof DUMMY_GALLERY>([]);
+  const [images, setImages] = useState<GalleryImage[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+
   const openModal = useGalleryStore((state) => state.openModal);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  const fetchImages = useCallback(async () => {
+    const data = await galleryService.getAll();
+    setImages(data);
+  }, []);
 
   useEffect(() => {
-    // Simulate Supabase fetch
-    setTimeout(() => {
-      setImages(DUMMY_GALLERY);
-    }, 500);
-  }, []);
+    fetchImages();
+  }, [fetchImages]);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this photo?')) return;
+    const success = await galleryService.remove(id);
+    if (success) fetchImages();
+  };
+
+  const handleAddNew = () => {
+    setEditingImage(null);
+    setIsModalOpen(true);
+  };
+
+  // Map API data to gallery store shape: image_url → url
+  const galleryStoreImages = images.map((img) => ({
+    url: getImageUrl(img.image_url),
+    caption: img.caption,
+  }));
 
   return (
     <section id="gallery" className="py-24 bg-muted/30">
@@ -67,35 +62,72 @@ export function GallerySection() {
           <p className="text-foreground/80 text-lg">
             Intip suasana nyaman dan momen spesial yang diabadikan oleh pengunjung dan barista kami.
           </p>
+
+          {isAuthenticated && (
+            <button
+              onClick={handleAddNew}
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-all"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Photo</span>
+            </button>
+          )}
         </motion.div>
 
-        {/* Masonry Grid Simulation (using CSS columns for simplicity) */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
-          {images.map((img, idx) => (
-            <motion.div
-              key={img.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all"
-              onClick={() => openModal(idx, images)}
-            >
-              <img
-                src={img.url}
-                alt={img.caption}
-                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
-                  <Maximize2 className="w-5 h-5" />
+        {images.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-foreground/50 text-lg">No gallery photos yet.</p>
+          </div>
+        ) : (
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+            {images.map((img, idx) => (
+              <motion.div
+                key={img.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all"
+                onClick={() => openModal(idx, galleryStoreImages)}
+              >
+                <img
+                  src={getImageUrl(img.image_url)}
+                  alt={img.caption}
+                  className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+                    <Maximize2 className="w-5 h-5" />
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+
+                {/* Owner delete button */}
+                {isAuthenticated && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(img.id);
+                    }}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                    title="Delete photo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Add/Edit Gallery Modal */}
+      <AddGalleryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSaved={fetchImages}
+        editingImage={editingImage}
+      />
     </section>
   );
 }

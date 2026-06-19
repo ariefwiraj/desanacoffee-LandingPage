@@ -1,36 +1,21 @@
-import { Navbar } from '@/components/Navbar';
-import { HeroSection } from '@/sections/HeroSection';
-import { AboutSection } from '@/sections/AboutSection';
-import { FeaturedMenuSection } from '@/sections/FeaturedMenuSection';
-import { GallerySection } from '@/sections/GallerySection';
-import { TestimonialsSection } from '@/sections/TestimonialsSection';
-import { LocationSection } from '@/sections/LocationSection';
-import { CTASection } from '@/sections/CTASection';
-import { FooterSection } from '@/sections/FooterSection';
-import { MenuOverlay } from '@/components/MenuOverlay';
-import { GalleryModal } from '@/components/GalleryModal';
+import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { LandingPage } from '@/pages/LandingPage';
+import { OwnerLoginPage } from '@/pages/OwnerLoginPage';
+import { useAuthStore } from '@/store/authStore';
 
 function App() {
+  const checkAuth = useAuthStore((s) => s.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
-    <div className="relative min-h-screen bg-background font-sans text-foreground">
-      <Navbar />
-      
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <FeaturedMenuSection />
-        <GallerySection />
-        <TestimonialsSection />
-        <LocationSection />
-        <CTASection />
-      </main>
-
-      <FooterSection />
-
-      {/* Modals & Overlays */}
-      <MenuOverlay />
-      <GalleryModal />
-    </div>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/owner/login" element={<OwnerLoginPage />} />
+    </Routes>
   );
 }
 

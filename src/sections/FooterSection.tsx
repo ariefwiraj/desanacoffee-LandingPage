@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react';
 import { InstagramIcon as Instagram } from '@/components/InstagramIcon';
+import { scrollToTarget } from '@/components/Navbar';
 
 export function FooterSection() {
   const currentYear = new Date().getFullYear();
@@ -11,20 +12,24 @@ export function FooterSection() {
           
           {/* Brand */}
           <div className="lg:col-span-2">
-            <a href="#hero" className="inline-block text-3xl font-serif font-bold text-white tracking-wide mb-6">
+            <a 
+              href="#home" 
+              onClick={(e) => scrollToTarget(e, 'home')}
+              className="inline-block text-3xl font-serif font-bold text-white tracking-wide mb-6"
+            >
               Desana<span className="text-accent">.</span>
             </a>
             <p className="text-white/70 max-w-sm mb-8 leading-relaxed">
               Lebih dari sekadar kedai kopi. Kami menyajikan pengalaman, kehangatan, dan momen tak terlupakan dalam setiap cangkir.
             </p>
-            <a 
+            {/* <a 
               href="https://instagram.com" 
               target="_blank" 
               rel="noreferrer"
               className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-accent text-white hover:text-accent-foreground transition-all"
             >
               <Instagram className="w-5 h-5" />
-            </a>
+            </a> */}
           </div>
 
           {/* Quick Links */}
@@ -35,6 +40,7 @@ export function FooterSection() {
                 <li key={link}>
                   <a 
                     href={`#${link.toLowerCase()}`}
+                    onClick={(e) => scrollToTarget(e, link.toLowerCase())}
                     className="text-white/70 hover:text-accent transition-colors"
                   >
                     {link}
@@ -57,7 +63,7 @@ export function FooterSection() {
               </li>
               <li className="flex gap-3 text-white/70">
                 <Instagram className="w-5 h-5 flex-shrink-0 text-accent" />
-                <a href="https://instagram.com" className="hover:text-accent transition-colors">
+                <a href="https://www.instagram.com/desanacoffee/" className="hover:text-accent transition-colors">
                   @desanacoffee
                 </a>
               </li>
@@ -70,10 +76,10 @@ export function FooterSection() {
           <p className="text-white/50 text-sm">
             © {currentYear} Desana Coffee. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm text-white/50">
+          {/* <div className="flex gap-6 text-sm text-white/50">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

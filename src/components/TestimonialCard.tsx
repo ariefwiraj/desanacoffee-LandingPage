@@ -1,15 +1,47 @@
-import { Star } from 'lucide-react';
+import { Star, Pencil, Trash2 } from 'lucide-react';
 
 interface TestimonialCardProps {
   name: string;
   review: string;
   rating: number;
   avatarUrl?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function TestimonialCard({ name, review, rating, avatarUrl }: TestimonialCardProps) {
+export function TestimonialCard({ name, review, rating, avatarUrl, onEdit, onDelete }: TestimonialCardProps) {
+  const handleDelete = () => {
+    if (window.confirm(`Delete testimonial from "${name}"?`)) {
+      onDelete?.();
+    }
+  };
+
   return (
-    <div className="bg-card border border-border p-8 rounded-2xl shadow-sm h-full flex flex-col mx-4 select-none">
+    <div className="bg-card border border-border p-8 rounded-2xl shadow-sm h-full flex flex-col mx-4 select-none relative group">
+      {/* Owner edit/delete controls */}
+      {(onEdit || onDelete) && (
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="w-7 h-7 rounded-full bg-accent text-white flex items-center justify-center shadow-sm hover:bg-accent/90 transition-colors"
+              title="Edit"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+              className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors"
+              title="Delete"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-1 mb-6 text-accent">
         {[...Array(5)].map((_, i) => (
           <Star 

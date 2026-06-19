@@ -4,7 +4,7 @@ import { scrollToTarget } from '@/components/Navbar';
 
 export function HeroSection() {
   return (
-    <section id="hero" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
       {/* Background Image Placeholder */}
       <div className="absolute inset-0 z-0">
         <img 

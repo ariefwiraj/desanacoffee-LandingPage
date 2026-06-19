@@ -3,10 +3,12 @@ import { Menu } from 'lucide-react';
 import { useScrollPosition } from '@/hooks/useScrollPosition';
 import { useScrollspy } from '@/hooks/useScrollspy';
 import { MobileDrawer } from './MobileDrawer';
+import { OwnerNavControls } from './owner/OwnerNavControls';
+import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { label: 'Home', target: 'hero' },
+  { label: 'Home', target: 'home' },
   { label: 'About', target: 'about' },
   { label: 'Menu', target: 'menu' },
   { label: 'Gallery', target: 'gallery' },
@@ -47,6 +49,7 @@ export function Navbar() {
   const scrollY = useScrollPosition();
   const activeId = useScrollspy(navLinks.map(l => l.target), 100);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const isScrolled = scrollY > 50;
 
@@ -62,8 +65,8 @@ export function Navbar() {
           {/* LOGO AREA */}
           <div className="flex-shrink-0 z-10">
             <a 
-              href="#hero" 
-              onClick={(e) => scrollToTarget(e, 'hero')}
+              href="#home" 
+              onClick={(e) => scrollToTarget(e, 'home')}
               className="block focus:outline-none"
             >
               <img 
@@ -77,7 +80,7 @@ export function Navbar() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => {
-              const isActive = activeId === link.target || (!activeId && link.target === 'hero');
+              const isActive = activeId === link.target || (!activeId && link.target === 'home');
               
               return (
                 <a
@@ -85,16 +88,12 @@ export function Navbar() {
                   href={`#${link.target}`}
                   onClick={(e) => scrollToTarget(e, link.target)}
                   className={cn(
-                    // Base classes & Hover effect
                     "text-sm font-medium transition-colors relative py-2 block flex flex-col items-center",
                     "hover:text-accent",
-                    // Garis bawah tiruan menggunakan after:
                     "after:content-[''] after:h-[2px] after:bg-accent after:absolute after:bottom-0 after:transition-all after:duration-300",
-                    
-                    // Kondisi saat menu AKTIF (Sama seperti image_b2c7bd.png)
                     isActive
-                      ? "text-accent after:w-3/5 scale-100 opacity-100" // Garis muncul sepanjang 60% teks jika aktif
-                      : "text-white/90 after:w-0 hover:after:w-3/5" // Garis 0% tapi memanjang saat di-hover
+                      ? "text-accent after:w-3/5 scale-100 opacity-100"
+                      : "text-white/90 after:w-0 hover:after:w-3/5"
                   )}
                 >
                   {link.label}
@@ -103,13 +102,18 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Mobile Toggle */}
-          <button
-            className="md:hidden p-2 text-white hover:text-accent transition-colors z-10"
-            onClick={() => setIsMobileOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          {/* Right-side controls */}
+          <div className="flex items-center gap-4 z-10">
+            {isAuthenticated && <OwnerNavControls />}
+
+            {/* Mobile Toggle */}
+            <button
+              className="md:hidden p-2 text-white hover:text-accent transition-colors"
+              onClick={() => setIsMobileOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </header>
 
